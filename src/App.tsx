@@ -32,6 +32,7 @@ function App() {
   const [dashboardData, setDashboardData] = useState<DashboardStatsDto | null>(null);
   const [sucursales, setSucursales] = useState<string[]>([]);
   const [formasPago, setFormasPago] = useState<string[]>([]);
+  const [years, setYears] = useState<string[]>([]);
   const [filtros, setFiltros] = useState<any>({});
 
   useEffect(() => {
@@ -47,14 +48,16 @@ function App() {
   const loadInitialData = async () => {
     try {
       setLoading(true);
-      const [sucursalesRes, formasPagoRes, dashboardRes] = await Promise.all([
+      const [sucursalesRes, formasPagoRes, yearsRes, dashboardRes] = await Promise.all([
         ventasAPI.getSucursales(),
         ventasAPI.getFormasPago(),
+        ventasAPI.getYears(),
         ventasAPI.getDashboard(),
       ]);
 
       setSucursales(sucursalesRes.data);
       setFormasPago(formasPagoRes.data);
+      setYears(yearsRes.data);
       setDashboardData(dashboardRes.data);
       setError(null);
     } catch (err: any) {
@@ -80,25 +83,12 @@ function App() {
     setFiltros(newFiltros);
   };
 
-  if (loading) {
+  // Solo mostrar spinner en primera carga
+  if (loading && !dashboardData) {
     return (
       <div className="loading-container">
         <Loader2 className="spinner" size={48} />
         <p>Cargando dashboard...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="error-container">
-        <div className="error-card">
-          <h2>⚠️ Error de Conexión</h2>
-          <p>{error}</p>
-          <button className="btn btn-primary" onClick={loadInitialData}>
-            Reintentar
-          </button>
-        </div>
       </div>
     );
   }
@@ -131,25 +121,59 @@ function App() {
 
       <main className="app-main">
         <div className="container">
+          {/* Banner de error no bloqueante */}
+          {error && (
+            <div style={{
+              background: 'linear-gradient(135deg, #ff6b6b 0%, #ff8787 100%)',
+              color: 'white',
+              padding: '1rem 1.5rem',
+              borderRadius: '12px',
+              marginBottom: '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 4px 12px rgba(255, 107, 107, 0.2)'
+            }}>
+              <div>
+                <strong>⚠️ Error de conexión</strong>
+                <p style={{ margin: '0.25rem 0 0 0', opacity: 0.9, fontSize: '0.9rem' }}>
+                  {error}
+                </p>
+              </div>
+              <button 
+                onClick={loadInitialData}
+                style={{
+                  background: 'white',
+                  color: '#ff6b6b',
+                  border: 'none',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 'bold'
+                }}
+              >
+                Reintentar
+              </button>
+            </div>
+          )}
+
           <Filters 
             sucursales={sucursales}
             formasPago={formasPago}
+            years={years}
             onFilterChange={handleFilterChange}
           />
 
-          {dashboardData && (
-            <>
-              <StatsCards 
-                totalVentas={dashboardData.totalVentas}
-                totalMes={dashboardData.totalMes}
-                numeroVentas={dashboardData.ventasRecientes.length}
-              />
+          {/* Mostrar datos o placeholders */}
+          <StatsCards 
+            totalVentas={dashboardData?.totalVentas || 0}
+            totalMes={dashboardData?.totalMes || 0}
+            numeroVentas={dashboardData?.ventasRecientes.length || 0}
+          />
 
-              <Charts data={dashboardData.ventasPorSucursal} />
+          <Charts data={dashboardData?.ventasPorSucursal || []} />
 
-              <VentasTable ventas={dashboardData.ventasRecientes} />
-            </>
-          )}
+          <VentasTable ventas={dashboardData?.ventasRecientes || []} />
         </div>
       </main>
 

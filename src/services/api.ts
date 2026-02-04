@@ -15,6 +15,7 @@ export const ventasAPI = {
   getVentasRecientes: (filtros?: any) => api.get('/ventas/recientes', { params: filtros }),
   getSucursales: () => api.get('/ventas/sucursales'),
   getFormasPago: () => api.get('/ventas/formas-pago'),
+  getYears: () => api.get('/ventas/anios'),
 };
 
 export default api;
