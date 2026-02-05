@@ -8,7 +8,8 @@ interface Venta {
   sucursal: string;
   docCliente: string;
   cliente: string;
-  codReferencia: string;
+  codSerie: string;
+  codNumero: string;
   formaPago: string;
   fechaHora: Date;
   montos: number;
@@ -28,7 +29,7 @@ const VentasTable = ({ ventas }: VentasTableProps) => {
   const currentVentas = ventas.slice(startIndex, endIndex);
 
   const formatCurrency = (value: number) => {
-    return value.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return (value || 0).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   const formatDate = (date: Date) => {
@@ -62,7 +63,8 @@ const VentasTable = ({ ventas }: VentasTableProps) => {
               <th>SUCURSAL</th>
               <th>DOC CLIENTE</th>
               <th>CLIENTE</th>
-              <th>COD_REFERENCIA</th>
+              <th>COD_SERIE</th>
+              <th>COD_NUMERO</th>
               <th>FORMA DE PAGO</th>
               <th>FECHA Y HORA</th>
               <th className="text-right">MONTOS</th>
@@ -77,7 +79,8 @@ const VentasTable = ({ ventas }: VentasTableProps) => {
                 </td>
                 <td>{venta.docCliente}</td>
                 <td className="font-medium">{venta.cliente}</td>
-                <td className="text-mono">{venta.codReferencia}</td>
+                <td className="text-mono">{venta.codSerie}</td>
+                <td className="text-mono">{venta.codNumero}</td>
                 <td>
                   <span className={`badge badge-${venta.formaPago.toLowerCase().replace(/\s+/g, '-')}`}>
                     {venta.formaPago}
